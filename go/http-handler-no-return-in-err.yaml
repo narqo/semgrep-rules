@@ -1,0 +1,47 @@
+rules:
+  - id: http-handler-missing-return-in-err
+    languages: [go]
+    message: >-
+      Possibly missing return inside error handling block of HTTP handler.
+    patterns:
+      - pattern-not-inside: go func(...) { ... }(...)
+      - pattern-either:
+          - pattern-inside: func($W http.ResponseWriter, $R *http.Request) { ... }
+          - pattern-inside: func $H($W http.ResponseWriter, $R *http.Request) { ... }
+          - pattern-inside: func ($X $H) ServeHTTP($W http.ResponseWriter, $R *http.Request) { ... }
+      - pattern: |
+          if err != nil {
+            ...
+            $FOO(..., $W, ...)
+            ...
+          }
+          $CONT
+      - pattern-not: |
+          if err != nil {
+            ...
+          }
+      - pattern-not: |
+          if err != nil {
+            ...
+          }
+          return
+      - pattern-not: |
+          if err != nil {
+            ...
+            return
+          }
+          ...
+      - pattern-not: |
+          if err != nil {
+            ...
+            panic(err)
+          }
+          ...
+      - pattern-not: |
+          if err != nil {
+            ...
+            err = ...
+            ...
+          }
+          ...
+    severity: ERROR

@@ -1,0 +1,19 @@
+rules:
+  - id: test-main-run
+    languages: [go]
+    message: >-
+      Missing the call to m.Run() in TestMain function
+    patterns:
+      - pattern-inside: func TestMain($M *testing.M) { ... }
+      - pattern-not: |
+          ...
+          $M.Run()
+          ...
+      - pattern-not: |
+          ...
+          os.Exit(...)
+          ...
+    severity: WARNING
+    paths:
+      include:
+        - "*_test.go"

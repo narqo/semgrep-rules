@@ -1,0 +1,23 @@
+rules:
+  - id: http-handler-ctx-background
+    languages: [go]
+    message: >-
+      Use of context.Background() inside HTTP handler.
+    patterns:
+      - pattern-not-inside: go func(...) { ... }(...)
+      - pattern-either:
+          - pattern-inside: func($W http.ResponseWriter, $R *http.Request) { ... }
+          - pattern-inside: func $H($W http.ResponseWriter, $R *http.Request) { ... }
+          - pattern-inside: func ($X $H) ServeHTTP($W http.ResponseWriter, $R *http.Request) { ... }
+      - pattern-either:
+          - pattern: |
+              $F(context.Background(), ...)
+          - pattern: |
+              $CTX := context.Background()
+              ...
+              $F($CTX, ...)
+      - focus-metavariable: $F
+    severity: WARNING
+    paths:
+      exclude:
+        - "*_test.go"
