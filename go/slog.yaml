@@ -1,0 +1,9 @@
+rules:
+  - id: convert-logger-call
+    patterns:
+      - pattern: |
+          level.$F($L).Log("msg", $M, $...X)
+    message: Convert log/level patterns to slog
+    languages: [go]
+    severity: WARNING
+    fix: $L.$F($M, $...X)
